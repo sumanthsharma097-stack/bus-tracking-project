@@ -204,6 +204,9 @@ Admin → Approvals shows the three queues with a count badge. Seed data include
 3. **Reset:** the token plus the new password. The token is found-and-deleted in one step so it is **single use**; the password is hashed with bcrypt.
 4. Protections: rate limits on each step, a 60-second resend wait, nothing stored in the browser, the code never logged or returned in a response, mail credentials only in `.env`. Works for all roles.
 
+### 5.7b Road-following routes on the map
+A route is only a list of stops, so joining them would draw straight lines through buildings. Instead, when a route is selected on the Live map the page asks `GET /api/routes/:id/geometry`. The server sends the stops, **in order**, to an OSRM routing server (OpenStreetMap road data) and receives the road path as many coordinates. It saves that path in the route document together with a fingerprint of the stop positions, so the routing service is called **once per route** and again only if an admin or operator changes the stops. Failures (service unreachable, no road connection, invalid coordinates) are reported clearly and the map falls back to a dashed straight line labelled as not being the road path. Long routes are requested in chunks of 25 stops and joined.
+
 ### 5.8 Offline mode
 A service worker saves the app files and **only public, non-live data** (routes and stops). Offline, previously viewed routes and stops still open and a banner explains that live positions and ETAs are unavailable. Accounts, preferences, admin/operator data, live buses and ETAs are deliberately **never** cached.
 
